@@ -49,11 +49,12 @@ def analyze_data():
         if item["check_value"] > max_value or item["check_value"] < min_value:
             alert = True
 
-        print(f'Variable: {variable}, Valor promedio: {item["check_value"]}, Valor máximo: {max_value}, Valor mínimo: {min_value}, item: {item["values"]}')
-
+        print(f'Variable: {variable}, Valor promedio: {item["check_value"]}, Valor máximo: {max_value}, Valor mínimo: {min_value}')
+        print(len([x for x in item["values"] if x > 90]) > 10)
         if variable == 'humedad' and len([x for x in item["values"] if x > 90]) > 10:
             message = "ALERT  {} {} {} {}".format("Increasing humidity, please check sensors", city, country, user)
             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
+            print(f"Sending alert: {message} to topic: {topic}")
             print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
             client.publish(topic, message)
             alerts += 1
@@ -63,7 +64,12 @@ def analyze_data():
             message = "ALERT {} {} {}".format(variable, min_value, max_value)
             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
             print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
-            client.publish(topic, message)
+            result = client.publish(topic, message)
+            if result.rc == mqtt.MQTT_ERR_SUCCESS:
+                print(f"Successfully sent alert to {topic}")
+            else:
+                print(f"Failed to send alert to {topic}. Error code: {result.rc}")
+
             alerts += 1
 
     print(len(aggregation), "dispositivos revisados")
