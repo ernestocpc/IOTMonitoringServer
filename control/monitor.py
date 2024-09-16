@@ -26,6 +26,7 @@ def analyze_data():
         .select_related('station__location__city', 'station__location__state',
                         'station__location__country') \
         .values('check_value', 'station__user__username',
+                #New 
                 'values',
                 'measurement__name',
                 'measurement__max_value',
@@ -51,6 +52,7 @@ def analyze_data():
 
         print(f'Variable: {variable}, Valor promedio: {item["check_value"]}, Valor máximo: {max_value}, Valor mínimo: {min_value}')
         print(len([x for x in item["values"] if x > 90]) > 10)
+        #New
         if variable == 'humedad' and len([x for x in item["values"] if x > 90]) > 10:
             message = "ALERT  {} {} {} {}".format("Increasing humidity, please check sensors", city, country, user)
             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
